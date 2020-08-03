@@ -2160,15 +2160,22 @@ uint32_t DDA::ManageLaserPower() const noexcept
 		return LaserPwmIntervalMillis;
 	}
 
+	Pwm_t rampingAmount;
+	Pwm_t rampingOffset;
+	if (laserThreshold < laserPwmOrIoBits.laserPwm) {
+		rampingAmount = laserPwmOrIoBits.laserPwm - laserThreshold;
+		rampingOffset = laserThreshold;
+	} else {
+		rampingAmount = 0;
+		rampingOffset = laserPwmOrIoBits.laserPwm;
+	}
+
 	const float timeMoving = (float)clocksMoving * (1.0/(float)StepTimer::StepClockRate);
 	const float accelSpeed = startSpeed + acceleration * timeMoving;
 	if (accelSpeed < topSpeed)
-	{
-		// Note: somehow the gcode parameter is not working
-
-		const Pwm_t rampingAmount = laserPwmOrIoBits.laserPwm - laserThreshold;
+	{		 
 		// Acceleration phase
-		const Pwm_t pwm = (Pwm_t)((accelSpeed/topSpeed) * rampingAmount + laserThreshold);
+		const Pwm_t pwm = (Pwm_t)((accelSpeed/topSpeed) * rampingAmount + rampingOffset);
 		reprap.GetPlatform().SetLaserPwm(pwm);
 		return LaserPwmIntervalMillis;
 	}
@@ -2177,9 +2184,8 @@ uint32_t DDA::ManageLaserPower() const noexcept
 	const float decelSpeed = endSpeed + deceleration * (float)clocksLeft * (1.0/(float)StepTimer::StepClockRate);
 	if (decelSpeed < topSpeed)
 	{
-		const Pwm_t rampingAmount = laserPwmOrIoBits.laserPwm - laserThreshold;
 		// Deceleration phase
-		const Pwm_t pwm = (Pwm_t)((decelSpeed/topSpeed) * rampingAmount + laserThreshold);
+		const Pwm_t pwm = (Pwm_t)((decelSpeed/topSpeed) * rampingAmount + rampingOffset);
 		reprap.GetPlatform().SetLaserPwm(pwm);
 		return LaserPwmIntervalMillis;
 	}
