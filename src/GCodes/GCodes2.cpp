@@ -516,6 +516,7 @@ bool GCodes::HandleMcode(GCodeBuffer& gb, const StringRef& reply) THROWS(GCodeEx
 						{
 							return false;						// don't modify moves that haven't gone yet
 						}
+						// todo
 						moveBuffer.laserPwmOrIoBits.laserPwm = ConvertLaserPwm(gb.GetFValue());
 						break;
 #endif

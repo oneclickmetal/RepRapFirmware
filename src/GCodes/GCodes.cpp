@@ -1771,6 +1771,10 @@ bool GCodes::DoStraightMove(GCodeBuffer& gb, bool isCoordinated, const char *& e
 # if SUPPORT_LASER
 	else if (machineType == MachineType::laser)
 	{
+		if (gb.Seen('T')) {
+			moveBuffer.laserThreshold = ConvertLaserPwm(gb.GetFValue());
+		}
+		
 		if (gb.Seen('S'))
 		{
 			moveBuffer.laserPwmOrIoBits.laserPwm = ConvertLaserPwm(gb.GetFValue());

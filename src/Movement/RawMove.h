@@ -22,6 +22,7 @@ struct RawMove
 	const Tool *tool;												// which tool (if any) is being used
 #if SUPPORT_LASER || SUPPORT_IOBITS
 	LaserPwmOrIoBits laserPwmOrIoBits;								// the laser PWM or port bit settings required
+	Pwm_t laserThreshold = 0;
 #endif
 	uint8_t moveType;												// the S parameter from the G0 or G1 command, 0 for a normal move
 

@@ -241,6 +241,7 @@ public:
 	// Return laser PWM in 0..1
 	float GetLaserPwm() const noexcept
 	{
+		// todo
 		return (float)moveBuffer.laserPwmOrIoBits.laserPwm * (1.0/65535);
 	}
 # endif

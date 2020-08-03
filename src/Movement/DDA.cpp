@@ -399,6 +399,7 @@ bool DDA::InitStandardMove(DDARing& ring, const RawMove &nextMove, bool doMotorM
 	if (flags.controlLaser)
 	{
 		laserPwmOrIoBits = nextMove.laserPwmOrIoBits;
+		laserThreshold = nextMove.laserThreshold;
 	}
 	else
 	{
@@ -1194,6 +1195,7 @@ void DDA::Prepare(uint8_t simMode, float extrusionPending[]) noexcept
 	if (topSpeed < requestedSpeed && reprap.GetGCodes().GetMachineType() == MachineType::laser)
 	{
 		// Scale back the laser power according to the actual speed
+		// todo
 		laserPwmOrIoBits.laserPwm = (laserPwmOrIoBits.laserPwm * topSpeed)/requestedSpeed;
 	}
 #endif
@@ -2162,8 +2164,11 @@ uint32_t DDA::ManageLaserPower() const noexcept
 	const float accelSpeed = startSpeed + acceleration * timeMoving;
 	if (accelSpeed < topSpeed)
 	{
+		// Note: somehow the gcode parameter is not working
+
+		const Pwm_t rampingAmount = laserPwmOrIoBits.laserPwm - laserThreshold;
 		// Acceleration phase
-		const Pwm_t pwm = (Pwm_t)((accelSpeed/topSpeed) * laserPwmOrIoBits.laserPwm);
+		const Pwm_t pwm = (Pwm_t)((accelSpeed/topSpeed) * rampingAmount + laserThreshold);
 		reprap.GetPlatform().SetLaserPwm(pwm);
 		return LaserPwmIntervalMillis;
 	}
@@ -2172,8 +2177,9 @@ uint32_t DDA::ManageLaserPower() const noexcept
 	const float decelSpeed = endSpeed + deceleration * (float)clocksLeft * (1.0/(float)StepTimer::StepClockRate);
 	if (decelSpeed < topSpeed)
 	{
+		const Pwm_t rampingAmount = laserPwmOrIoBits.laserPwm - laserThreshold;
 		// Deceleration phase
-		const Pwm_t pwm = (Pwm_t)((decelSpeed/topSpeed) * laserPwmOrIoBits.laserPwm);
+		const Pwm_t pwm = (Pwm_t)((decelSpeed/topSpeed) * rampingAmount + laserThreshold);
 		reprap.GetPlatform().SetLaserPwm(pwm);
 		return LaserPwmIntervalMillis;
 	}

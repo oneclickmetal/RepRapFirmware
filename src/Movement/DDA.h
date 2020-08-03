@@ -224,6 +224,7 @@ private:
 
 #if SUPPORT_LASER || SUPPORT_IOBITS
 	LaserPwmOrIoBits laserPwmOrIoBits;				// laser PWM required or port state required during this move (here because it is currently 16 bits)
+	Pwm_t laserThreshold = 0;	
 #endif
 
 	const Tool *tool;								// which tool (if any) is active
